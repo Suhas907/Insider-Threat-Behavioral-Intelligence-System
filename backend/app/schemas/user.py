@@ -21,3 +21,10 @@ class UserResponse(BaseModel):
 
     class Config:
         from_attributes = True
+class OTPRequest(BaseModel):
+    email: EmailStr
+
+
+class OTPVerify(BaseModel):
+    email: EmailStr
+    otp: str

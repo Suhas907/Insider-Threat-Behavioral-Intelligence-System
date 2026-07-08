@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from app.models.user import User
 from app.schemas.user import UserCreate
+from app.services.otp_service import create_otp
 from app.core.security import hash_password
 from app.core.security import verify_password, create_access_token
 def create_user(db: Session, user: UserCreate):

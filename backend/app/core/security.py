@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-
+import random
 SECRET_KEY = "ThisIsMyVerySecretKey123456"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
@@ -37,3 +37,5 @@ def create_access_token(data: dict):
         SECRET_KEY,
         algorithm=ALGORITHM
     )
+def generate_otp():
+    return str(random.randint(100000, 999999))
