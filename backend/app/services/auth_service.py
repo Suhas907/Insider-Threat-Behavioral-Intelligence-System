@@ -30,6 +30,11 @@ def login_user(db: Session, email: str, password: str):
 
     if not verify_password(password, user.hashed_password):
         return None
+    
+    if not user.is_verified:
+        return {
+            "error": "Please verify your email before logging in."
+        }
 
     token = create_access_token(
         data={
