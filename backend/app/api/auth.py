@@ -196,29 +196,57 @@ def login(
 
     return result
 
+# @router.post("/request-otp")
+# def request_otp(
+#     request: OTPRequest,
+#     db: Session = Depends(get_db)
+# ):
+
+#     otp = create_otp(
+#         db,
+#         request.email
+#     )
+
+#     if otp is None:
+#         raise HTTPException(
+#             status_code=404,
+#             detail="No account found with this email address."
+#         )
+
+#     return {
+#         "success": True,
+#         "message": "OTP has been generated successfully. Please verify your email.",
+#         "otp": otp   # Remove this after email integration
+#     }
+
+
 @router.post("/request-otp")
 def request_otp(
     request: OTPRequest,
     db: Session = Depends(get_db)
 ):
 
-    otp = create_otp(
+    success = create_otp(
         db,
         request.email
     )
 
-    if otp is None:
+    if success is None:
         raise HTTPException(
             status_code=404,
             detail="No account found with this email address."
         )
 
+    if success is False:
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to send OTP email. Please try again."
+        )
+
     return {
         "success": True,
-        "message": "OTP has been generated successfully. Please verify your email.",
-        "otp": otp   # Remove this after email integration
+        "message": "OTP has been sent successfully to your email."
     }
-
 
 @router.post("/verify-otp")
 def verify_email(

@@ -7,6 +7,38 @@ from app.models.otp import OTPCode
 
 from app.core.security import generate_otp
 
+from app.services.email_service import send_email
+
+
+# def create_otp(db: Session, email: str):
+
+#     user = db.query(User).filter(
+#         User.email == email
+#     ).first()
+
+#     if not user:
+#         return None
+#     db.query(OTPCode).filter(
+#         OTPCode.user_id == user.id,
+#         OTPCode.is_used == False
+#     ).update(
+#         {"is_used": True}
+# )
+
+#     db.commit()
+
+#     otp = generate_otp()
+
+#     otp_record = OTPCode(
+#         user_id=user.id,
+#         otp_code=otp,
+#         expires_at=datetime.utcnow() + timedelta(minutes=5)
+#     )
+
+#     db.add(otp_record)
+#     db.commit()
+
+#     return otp
 
 def create_otp(db: Session, email: str):
 
@@ -16,27 +48,61 @@ def create_otp(db: Session, email: str):
 
     if not user:
         return None
+
+    # Mark all previous unused OTPs as used
     db.query(OTPCode).filter(
         OTPCode.user_id == user.id,
         OTPCode.is_used == False
     ).update(
         {"is_used": True}
-)
+    )
 
     db.commit()
 
+    # Generate new OTP
     otp = generate_otp()
 
     otp_record = OTPCode(
         user_id=user.id,
         otp_code=otp,
-        expires_at=datetime.utcnow() + timedelta(minutes=5)
+        expires_at=datetime.utcnow() + timedelta(minutes=5),
+        is_used=False
     )
 
     db.add(otp_record)
     db.commit()
 
-    return otp
+    # Email content
+    subject = "Email Verification OTP"
+
+    body = f"""
+Hello,
+
+Your One-Time Password (OTP) for email verification is:
+
+{otp}
+
+This OTP is valid for 5 minutes.
+
+If you did not request this OTP, please ignore this email.
+
+Regards,
+Insider Threat Behavioral Intelligence System
+"""
+
+    # Send OTP email
+    email_sent = send_email(
+        receiver_email=email,
+        subject=subject,
+        body=body
+    )
+
+    if not email_sent:
+        return False
+
+    return True
+
+
 from datetime import datetime
 
 def verify_otp(db: Session, email: str, otp: str):

@@ -11,6 +11,8 @@ from app.core.dependencies import get_db
 from app.schemas.user import UserUpdate, UserResponse,ChangePassword
 from app.services.auth_service import update_profile,change_password
 
+from app.services.email_service import send_email
+
 router = APIRouter(
     prefix="/users",
     tags=["Users"]
@@ -117,3 +119,24 @@ def security_analyst_dashboard(
         "user": current_user.username,
         "role": current_user.role
     }
+
+
+# @router.get("/test-email")
+# def test_email():
+
+#     success = send_email(
+#         receiver_email="donthasuhas@gmail.com",
+#         subject="FastAPI Email Test",
+#         body="Congratulations! Your email service is working successfully."
+#     )
+
+#     if success:
+#         return {
+#             "success": True,
+#             "message": "Email sent successfully."
+#         }
+
+#     return {
+#         "success": False,
+#         "message": "Failed to send email."
+#     }
