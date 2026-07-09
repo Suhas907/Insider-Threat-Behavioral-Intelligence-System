@@ -4,6 +4,13 @@ from app.core.security import get_current_user
 from app.models.user import User
 from app.core.roles import require_roles
 
+
+from sqlalchemy.orm import Session
+
+from app.core.dependencies import get_db
+from app.schemas.user import UserUpdate, UserResponse,ChangePassword
+from app.services.auth_service import update_profile,change_password
+
 router = APIRouter(
     prefix="/users",
     tags=["Users"]
@@ -23,6 +30,32 @@ def get_my_profile(
         "is_verified": current_user.is_verified,
         "is_active": current_user.is_active
     }
+
+@router.put("/me",response_model=UserResponse)
+def update_my_profile(
+    user_data: UserUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+
+    return update_profile(
+        db,
+        current_user,
+        user_data
+    )
+
+@router.put("/change-password")
+def change_my_password(
+    password_data: ChangePassword,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+
+    return change_password(
+        db,
+        current_user,
+        password_data
+    )
 
 @router.get("/admin")
 def admin_dashboard(

@@ -1,9 +1,11 @@
 from sqlalchemy.orm import Session
 from app.models.user import User
-from app.schemas.user import UserCreate
+from app.schemas.user import UserCreate,UserUpdate, ChangePassword
 from app.services.otp_service import create_otp
-from app.core.security import hash_password
+from app.core.security import hash_password,  verify_password
+from fastapi import HTTPException
 from app.core.security import verify_password, create_access_token
+
 def create_user(db: Session, user: UserCreate):
 
     db_user = User(
@@ -46,4 +48,74 @@ def login_user(db: Session, email: str, password: str):
     return {
         "access_token": token,
         "token_type": "bearer"
+    }
+
+from app.schemas.user import UserUpdate
+
+
+# def update_profile(
+#     db: Session,
+#     current_user: User,
+#     user_data: UserUpdate
+# ):
+
+#     current_user.username = user_data.username
+#     current_user.full_name = user_data.full_name
+
+#     db.commit()
+#     db.refresh(current_user)
+
+#     return current_user
+
+def update_profile(
+    db: Session,
+    current_user: User,
+    user_data: UserUpdate
+):
+
+    # Check if username already exists
+    existing_user = db.query(User).filter(
+        User.username == user_data.username,
+        User.id != current_user.id
+    ).first()
+
+    if existing_user:
+        raise HTTPException(
+            status_code=400,
+            detail="Username already exists."
+        )
+
+    current_user.username = user_data.username
+    current_user.full_name = user_data.full_name
+
+    db.commit()
+    db.refresh(current_user)
+
+    return current_user
+
+def change_password(
+    db: Session,
+    current_user: User,
+    password_data: ChangePassword
+):
+
+    # Check current password
+    if not verify_password(
+        password_data.current_password,
+        current_user.hashed_password
+    ):
+        raise HTTPException(
+            status_code=400,
+            detail="Current password is incorrect."
+        )
+
+    # Hash new password
+    current_user.hashed_password = hash_password(
+        password_data.new_password
+    )
+
+    db.commit()
+
+    return {
+        "message": "Password changed successfully."
     }

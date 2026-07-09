@@ -28,3 +28,10 @@ class OTPRequest(BaseModel):
 class OTPVerify(BaseModel):
     email: EmailStr
     otp: str
+class UserUpdate(BaseModel):
+    username: str
+    full_name: str
+
+class ChangePassword(BaseModel):
+    current_password: str
+    new_password: str
