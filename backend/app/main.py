@@ -39,6 +39,10 @@ from app.api import employees
 from app.api import dashboard
 from app.api import audit_logs
 
+from app.api import project_status
+from app.models.activity import Activity
+from app.api import activity
+
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Insider Threat Behavioral Intelligence System")
@@ -50,21 +54,10 @@ def home():
         "message": "Backend is running successfully!"
     }
 
-
-# app.include_router(
-#     auth.router,
-#     prefix="/auth",
-#     tags=["Authentication"]
-# )
-
-# app.include_router(
-#     users.router,
-#     tags=["Users"]
-# )
-# app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
-# app.include_router(users.router)
 app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(employees.router)
 app.include_router(dashboard.router)
 app.include_router(audit_logs.router)
+app.include_router(project_status.router)
+app.include_router(activity.router)
