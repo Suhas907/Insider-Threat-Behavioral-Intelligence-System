@@ -3,3 +3,10 @@ __pycache__/
 .ipynb_checkpoints/
 .env
 venv/
+
+# ML datasets
+ml/datasets/
+*.csv
+
+# Optional generated outputs
+ml/outputs/*.csv
